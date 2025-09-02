@@ -1,4 +1,3 @@
 [core]
-    remote = gcs-storage
-['remote "gcs-storage"']
-    url = /data/raw
+    analytics = false
+    autostage = true
