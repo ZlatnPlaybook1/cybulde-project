@@ -16,6 +16,7 @@ services:
       - ./:/app/
       - ~/.config/gcloud/:/home/${USER_NAME:-ahmed}/.config/gcloud
       - ~/ssh:/home/${USER_NAME:-ahmed}/.ssh
+      - ./.git:/app/.git
     ports:
       - 8888:8888
     ipc: host

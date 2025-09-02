@@ -18,6 +18,8 @@ CONTAINER_NAME = cybulde-data-container
 DIRS_TO_VALIDATE = cybulde
 DOCKER_COMPOSE_RUN = $(DOCKER_COMPOSE_COMMAND) run --rm $(SERVICE_NAME)
 DOCKER_COMPOSE_EXEC = $(DOCKER_COMPOSE_COMMAND) exec $(SERVICE_NAME)
+DOCKER_COMPOSE_EXEC = $(DOCKER_COMPOSE_COMMAND) exec -e GIT_CONFIG_GLOBAL=/app/.gitconfig $(SERVICE_NAME)
+INSIDE_DOCKER := $(shell test -f /.dockerenv && echo true || echo false)
 
 export
 
@@ -26,9 +28,12 @@ guard-%:
 	@#$(or ${$*}, $(error $* is not set))
 
 ## Version data
-entrypoint: up
+version-data:
+ifeq ($(INSIDE_DOCKER),true)
+	python ./cybulde/version_data.py
+else
 	$(DOCKER_COMPOSE_EXEC) python ./cybulde/version_data.py
-
+endif
 ## Starts jupyter lab
 notebook: up
 	$(DOCKER_COMPOSE_EXEC) jupyter-lab --ip 0.0.0.0 --port 8888 --no-browser
@@ -83,7 +88,11 @@ lock-dependencies: build-for-dependencies
 
 ## Starts docker containers using "docker-compose up -d"
 up:
+ifeq ($(INSIDE_DOCKER),true)
+	@echo "Already inside container, skipping docker compose up"
+else
 	$(DOCKER_COMPOSE_COMMAND) up -d
+endif
 
 ## docker-compose down
 down:

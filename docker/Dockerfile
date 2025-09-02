@@ -57,4 +57,7 @@ USER ahmed
 
 COPY . /app/
 
+RUN git config --global user.email "as4349124@gmail.com" \
+    &&  git config --global user.name "Ahmed Sherif"
+
 CMD ["/startup-script.sh"]
