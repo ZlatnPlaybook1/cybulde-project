@@ -32,13 +32,15 @@ def initialize_dvc() -> None:
     run_shell_command("git commit -m 'Initialized DVC'")
 
 
-def initialize_dvc_storage(dvc_remote_name :str , dvc_remote_url : str) -> None :
+def initialize_dvc_storage(dvc_remote_name: str, dvc_remote_url: str) -> None:
     if not run_shell_command("dvc remote list"):
         Data_UTLIS_LOGGER.info("Initializing DVC storage...")
         run_shell_command(f"dvc remote add -d {dvc_remote_name} {dvc_remote_url}")
         run_shell_command("git add .dvc/config")
-        run_shell_command(f"git commit -nm 'Congfigured remote storage at {dvc_remote_url}'")
-    
-    else :
+        # Safely commit: continue even if nothing to commit
+        run_shell_command(
+            f"git commit -nm 'Configured remote storage at {dvc_remote_url}' || echo 'Nothing to commit'"
+        )
+    else:
         Data_UTLIS_LOGGER.info("DVC storage was already initialized...")
 
