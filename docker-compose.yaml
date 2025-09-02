@@ -1,32 +1,22 @@
-version: "3.8"
-
 services:
   app:
     user: "${USER_ID:-1000}"
-    hostname: "${HOST_NAME:-emkademy}"
-    image: cybulde-template
+    hostname: "${HOST_NAME:-my-app-server}"
+    image: cybulde-data
     platform: linux/amd64
-    container_name: cybulde-template-container
+    container_name: cybulde-data-container
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/Dockerfile  # or just "Dockerfile" if it's in root
       args:
-        USER_NAME: "${USER_NAME:-kyuksel}"
+        USER_NAME: "${USER_NAME:-ahmed}"
         USER_ID: "${USER_ID:-1000}"
+        HOME: "/home/${USER_NAME:-ahmed}"  # Add this missing argument
     volumes:
       - ./:/app/
-      - ~/.config/gcloud/:/home/${USER_NAME:-kyuksel}/.config/gcloud
+      - ~/.config/gcloud/:/home/${USER_NAME:-ahmed}/.config/gcloud
+      - ~/ssh:/home/${USER_NAME:-ahmed}/.ssh
     ports:
-      - 8080:8080
-
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      - 8888:8888
     ipc: host
     init: true
-
-

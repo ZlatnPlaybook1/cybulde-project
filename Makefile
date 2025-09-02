@@ -2,7 +2,7 @@
 .PHONY: $(shell sed -n -e '/^$$/ { n ; /^[^ .\#][^ ]*:/ { s/:.*$$// ; p ; } ; }' $(MAKEFILE_LIST))
 
 SHELL = /usr/bin/env bash
-USER_NAME = $(shell whoami)
+USER_NAME = ahmed
 USER_ID = $(shell id -u)
 HOST_NAME = $(shell hostname)
 
@@ -13,7 +13,7 @@ else
 endif
 
 SERVICE_NAME = app
-CONTAINER_NAME = cybulde-template-container
+CONTAINER_NAME = cybulde-data-container
 
 DIRS_TO_VALIDATE = cybulde
 DOCKER_COMPOSE_RUN = $(DOCKER_COMPOSE_COMMAND) run --rm $(SERVICE_NAME)
@@ -25,9 +25,9 @@ export
 guard-%:
 	@#$(or ${$*}, $(error $* is not set))
 
-## Call entrypoint
+## Version data
 entrypoint: up
-	$(DOCKER_COMPOSE_EXEC) python ./cybulde/entrypoint.py
+	$(DOCKER_COMPOSE_EXEC) python ./cybulde/version_data.py
 
 ## Starts jupyter lab
 notebook: up
