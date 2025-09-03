@@ -34,44 +34,77 @@ ifeq ($(INSIDE_DOCKER),true)
 else
 	$(DOCKER_COMPOSE_EXEC) python ./cybulde/version_data.py
 endif
+
 ## Starts jupyter lab
 notebook: up
 	$(DOCKER_COMPOSE_EXEC) jupyter-lab --ip 0.0.0.0 --port 8888 --no-browser
 
 ## Sort code using isort
 sort: up
+ifeq ($(INSIDE_DOCKER),true)
+	isort --atomic $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) isort --atomic $(DIRS_TO_VALIDATE)
+endif
 
 ## Check sorting using isort
 sort-check: up
+ifeq ($(INSIDE_DOCKER),true)
+	isort --check-only --atomic $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) isort --check-only --atomic $(DIRS_TO_VALIDATE)
+endif
 
 ## Format code using black
 format: up
+ifeq ($(INSIDE_DOCKER),true)
+	black $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) black $(DIRS_TO_VALIDATE)
+endif
 
 ## Check format using black
 format-check: up
+ifeq ($(INSIDE_DOCKER),true)
+	black --check $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) black --check $(DIRS_TO_VALIDATE)
+endif
 
 ## Format and sort code using black and isort
 format-and-sort: sort format
 
 ## Lint code using flake8
 lint: up format-check sort-check
+ifeq ($(INSIDE_DOCKER),true)
+	flake8 $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) flake8 $(DIRS_TO_VALIDATE)
+endif
 
 ## Check type annotations using mypy
 check-type-annotations: up
+ifeq ($(INSIDE_DOCKER),true)
+	mypy $(DIRS_TO_VALIDATE)
+else
 	$(DOCKER_COMPOSE_EXEC) mypy $(DIRS_TO_VALIDATE)
+endif
 
 ## Run tests with pytest
 test: up
+ifeq ($(INSIDE_DOCKER),true)
+	pytest
+else
 	$(DOCKER_COMPOSE_EXEC) pytest
+endif
 
 ## Perform a full check
 full-check: lint check-type-annotations
+ifeq ($(INSIDE_DOCKER),true)
+	pytest --cov --cov-report xml --verbose
+else
 	$(DOCKER_COMPOSE_EXEC) pytest --cov --cov-report xml --verbose
+endif
 
 ## Builds docker image
 build:
@@ -158,4 +191,3 @@ help:
 		printf "\n"; \
 	}' \
 	| more $(shell test $(shell uname) = Darwin && echo '--no-init --raw-control-chars')
-

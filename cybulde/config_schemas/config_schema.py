@@ -6,7 +6,8 @@ from pydantic.dataclasses import dataclass
 class Config:
     dvc_remote_name: str = "gcs-storage"
     dvc_remote_url: str = "/data/raw"
-    dvc_row_data_folder : str = "data/raw"
+    dvc_row_data_folder: str = "data/raw"
+
 
 def setup_config() -> None:
     cs = ConfigStore.instance()
