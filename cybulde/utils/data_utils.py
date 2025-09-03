@@ -47,7 +47,7 @@ def commit_to_dvc(dvc_row_data_folder :str , dvc_remote_name:str) -> None:
     next_version = f"v{int(current_version)+1}"
     run_shell_command(f"dvc add {dvc_row_data_folder}")
     run_shell_command("git add .")
-    run_shell_command(f"git commit -m 'Updated version of the data from v{current_version} to {next_version}'")
+    run_shell_command(f"git commit -m 'Updated version of the data from v{current_version} to {next_version}' || echo 'Nothing to commit'")
     run_shell_command(f"git tag -a {next_version} -m 'Data version {next_version}'")
     # FIXED: Changed from incorrect git push command to proper dvc push
     run_shell_command(f"dvc push --remote {dvc_remote_name}")
