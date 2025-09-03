@@ -1,5 +1,7 @@
 from pathlib import Path
 from cybulde.utils.utils import get_logger, run_shell_command
+from subprocess import CalledProcessError
+
 
 Data_UTLIS_LOGGER = get_logger(Path(__file__).name)
 
@@ -44,3 +46,29 @@ def initialize_dvc_storage(dvc_remote_name: str, dvc_remote_url: str) -> None:
     else:
         Data_UTLIS_LOGGER.info("DVC storage was already initialized...")
 
+
+
+def commit_to_dvc(dvc_row_data_folder :str , dvc_remote_name:str) -> None:
+    current_version = ""
+    if not current_version:
+        current_version = "0"
+    next_version = f"v{int(current_version)+1}"
+    run_shell_command(f"dvc add {dvc_row_data_folder}")
+    run_shell_command("git add .")
+    run_shell_command(f"git commit -m 'Updated version of the data from v{current_version} to {next_version}'")
+    run_shell_command(f"git tag -a {next_version} -m 'Data version {next_version}'")
+    run_shell_command(f"git push {dvc_row_data_folder}.dvc --remote {dvc_remote_name}")
+    run_shell_command("git push --follow-tags")
+    run_shell_command("git push -f --tags")
+
+
+
+def make_new_data_version(dvc_row_data_folder : str , dvc_remote_name : str) -> None :
+    try :
+        status : str = run_shell_command("dvc status {dvc_row_data_folder}.dvc") 
+        if status == "Data and pipelined are up to data.\n" :
+            Data_UTLIS_LOGGER.info("Data and pipelined are up to data.")
+            return 
+        commit_to_dvc(dvc_row_data_folder , dvc_remote_name) 
+    except CalledProcessError :
+        commit_to_dvc(dvc_row_data_folder , dvc_remote_name)
